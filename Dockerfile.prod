@@ -1,0 +1,35 @@
+# ---- Builder Image ----
+FROM node:18-alpine as build
+# Installing dependencies required for Strapi
+RUN apk update && apk add build-base gcc autoconf automake zlib-dev libpng-dev vips-dev && rm -rf /var/cache/apk/* > /dev/null 2>&1
+# Set default environment variables
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+ENV PATH /opt/node_modules/.bin:$PATH
+# Begin Strapi install & build
+WORKDIR /opt/app
+COPY ./package.json ./yarn.lock ./
+RUN yarn config set network-timeout 600000 -g && yarn install
+COPY . .
+RUN yarn build
+# Copy node_modules and build to a safe location
+RUN cp -r ./node_modules /opt/node_modules_prod
+RUN cp -r ./build /opt/build_prod
+
+# ---- Release image ----
+FROM node:18-alpine
+# Install required runtime dependencies for Strapi
+RUN apk add vips-dev
+RUN rm -rf /var/cache/apk/*
+# Set default environment variablesn
+ARG NODE_ENV=production
+ENV NODE_ENV=${NODE_ENV}
+ENV PATH /opt/node_modules/.bin:$PATH
+# Copy node_modules and build from build image
+WORKDIR /opt/
+COPY --from=build /opt/node_modules_prod ./node_modules
+COPY --from=build /opt/build_prod ./build
+COPY --from=build /opt/app ./
+# Run the Strapi server
+EXPOSE 1337
+CMD ["yarn", "start"]

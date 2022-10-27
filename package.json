@@ -1,0 +1,32 @@
+{
+  "name": "test-docker-prod",
+  "private": true,
+  "version": "0.1.0",
+  "description": "A Strapi application",
+  "scripts": {
+    "develop": "strapi develop",
+    "start": "strapi start",
+    "build": "strapi build",
+    "strapi": "strapi",
+    "docker:build:prod": "docker build --no-cache -t strapitestprod . -f Dockerfile.prod",
+    "docker:run:prod": "docker run -p 1337:1337 strapitestprod"
+  },
+  "devDependencies": {},
+  "dependencies": {
+    "@strapi/strapi": "4.4.5",
+    "@strapi/plugin-users-permissions": "4.4.5",
+    "@strapi/plugin-i18n": "4.4.5",
+    "better-sqlite3": "7.4.6"
+  },
+  "author": {
+    "name": "A Strapi developer"
+  },
+  "strapi": {
+    "uuid": "3f70024d-ea62-4ab9-9d69-84b3c275f725"
+  },
+  "engines": {
+    "node": ">=14.19.1 <=18.x.x",
+    "npm": ">=6.0.0"
+  },
+  "license": "MIT"
+}
